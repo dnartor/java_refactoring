@@ -1,6 +1,7 @@
 package com.codemanship.marsrover;
 
 import org.junit.Test;
+import refactoring.Obstacle;
 import refactoring.Rover;
 import refactoring.Rover.Position;
 
@@ -79,5 +80,22 @@ public class Rover__ {
 		assertThat(rover.position()).isEqualTo(new Position(3,0));
 	}
 
+	@Test
+	public void couldnt_go_forward_with_obstacle() {
+		Rover rover = new Rover(South,  new Position(-2,1));
+		rover.addObstacle(new Obstacle(new Position (-2,0)));
+		rover.go(Forward);
+		assertThat(rover.heading()).isEqualTo(South);
+		assertThat(rover.position()).isEqualTo( new Position(-2,1));
+	}
+
+	@Test
+	public void couldnt_go_backward_with_obstacle() {
+		Rover rover = new Rover(West, new Position(-7, 9));
+		rover.addObstacle(new Obstacle(new Position (-6,9)));
+		rover.go(Backward);
+		assertThat(rover.heading()).isEqualTo(West);
+		assertThat(rover.position()).isEqualTo(new Position(-7,9));
+	}
 
 }

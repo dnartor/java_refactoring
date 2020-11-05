@@ -1,5 +1,7 @@
 package refactoring;
 
+import sun.tools.tree.PostIncExpression;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,7 +9,7 @@ public class Rover {
 
 	private Heading heading;
 	private Position position;
-	private static Map<Position, Obstacle> obstacles;
+	private static Map<Position, Obstacle> obstacles = new HashMap<>();
 
 	public Rover(String facing, int x, int y) {
 		heading= Heading.of(facing);
@@ -44,7 +46,8 @@ public class Rover {
 		}
 	}
 
-	public void addObstacle(Obstacle obstacle) { obstacles.put(obstacle.getPosition(),obstacle); }
+	public void addObstacle(Obstacle obstacle) {
+		obstacles.put(obstacle.getPosition(),obstacle); }
 
 	public interface Action{
 		void execute();
@@ -59,33 +62,22 @@ public class Rover {
 		}
 
 		public Position forward(Heading heading) {
-			if(heading.toString().equals("North")) return new Position(x,y+1);
-			if(heading.toString().equals("South")) return new Position(x,y-1);
-			if(heading.toString().equals("West")) return new Position(x-1,y);
-			if(heading.toString().equals("East")) return new Position(x+1,y);
-			return null;
+			if(!thereIsObstacleAhead(heading)) {
+				return forwardPosition(heading);
+			}
+			return new Position(x,y);
 		}
 		private boolean thereIsObstacleAhead(Heading heading) {
-			return thereIsObstacle(forwardPosition(heading));
-		}
-
-		private boolean thereIsObstacleBehind(Heading heading) {
-
-			return thereIsObstacle(backwardPosition(heading));
-		}
-
-		private boolean thereIsObstacle(Position position) {
-			return Rover.obstacles.containsKey(position);
+			Position positionComprobe = forwardPosition(heading);
+			for(Map.Entry<Position,Obstacle> entry:obstacles.entrySet()){
+				return entry.getKey().equals(positionComprobe);
+			}
+			return false;
 		}
 
 		private Position forwardPosition(Heading heading) {
 			return new Position(this.x + positionX(heading), this.y + positionY(heading));
 		}
-
-		private Position backwardPosition(Heading heading){
-			return new Position(this.x - positionX(heading), this.y - positionY(heading));
-		}
-
 		private int positionX(Heading heading) {
 			if (heading == Heading.East) return 1;
 			if (heading == Heading.West) return -1;
@@ -112,7 +104,7 @@ public class Rover {
 
 	}
 
-	private final Map<Order, Action> actions = new HashMap<Order, Action>();
+	private final Map<Order, Action> actions = new HashMap<>();
 	{
 		actions.put(Order.Left,() -> heading = heading.turnLeft());
 		actions.put(Order.Right,() -> heading = heading.turnRight());
