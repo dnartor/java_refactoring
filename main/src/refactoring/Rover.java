@@ -7,6 +7,7 @@ public class Rover {
 
 	private Heading heading;
 	private Position position;
+	private static Map<Position, Obstacle> obstacles;
 
 	public Rover(String facing, int x, int y) {
 		heading= Heading.of(facing);
@@ -43,6 +44,8 @@ public class Rover {
 		}
 	}
 
+	public void addObstacle(Obstacle obstacle) { obstacles.put(obstacle.getPosition(),obstacle); }
+
 	public interface Action{
 		void execute();
 	}
@@ -62,7 +65,38 @@ public class Rover {
 			if(heading.toString().equals("East")) return new Position(x+1,y);
 			return null;
 		}
+		private boolean thereIsObstacleAhead(Heading heading) {
+			return thereIsObstacle(forwardPosition(heading));
+		}
 
+		private boolean thereIsObstacleBehind(Heading heading) {
+
+			return thereIsObstacle(backwardPosition(heading));
+		}
+
+		private boolean thereIsObstacle(Position position) {
+			return Rover.obstacles.containsKey(position);
+		}
+
+		private Position forwardPosition(Heading heading) {
+			return new Position(this.x + positionX(heading), this.y + positionY(heading));
+		}
+
+		private Position backwardPosition(Heading heading){
+			return new Position(this.x - positionX(heading), this.y - positionY(heading));
+		}
+
+		private int positionX(Heading heading) {
+			if (heading == Heading.East) return 1;
+			if (heading == Heading.West) return -1;
+			return 0;
+		}
+
+		private int positionY(Heading heading) {
+			if (heading == Heading.North) return 1;
+			if (heading == Heading.South) return -1;
+			return 0;
+		}
 		@Override
 		public boolean equals(Object object) {
 			return isSameClass(object) && equals((Position) object);
